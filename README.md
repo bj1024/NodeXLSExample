@@ -29,3 +29,17 @@ ts-node src/main.ts
 ```
 
 
+
+## csv-parse
+
+
+```
+npm install csv-parse
+```
+
+- csv-parse provides its own type definitions, so you do not need this installed.
+
+
+```
+npm install iconv-lite
+```
