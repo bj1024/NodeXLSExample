@@ -14,6 +14,7 @@
   },
   "scripts": {
     "dev": "ts-node src/main.ts",
+    "dev_tosubarray": "ts-node src/tosubarray.ts",
     "dev:watch": "ts-node-dev --respawn src/main.ts"
   }
 }
