@@ -28,10 +28,7 @@ npm install -D ts-node-dev
 ts-node src/main.ts 
 ```
 
-
-
 ## csv-parse
-
 
 ```
 npm install csv-parse
@@ -60,5 +57,13 @@ npm install iconv-lite
 
 ```
 ./node_modules/.bin/tsc --init 
+
+```
+
+# xlsx
+
+```
+npm install --save xlsx
+npm install --save-dev @types/xlsx
 
 ```

@@ -1,5 +1,10 @@
 import {parse} from "csv-parse";
 import * as fs from 'fs';
+// const XLSX = require('xlsx')
+import * as XLSX from "xlsx";
+// import * as XLSX from 'xlsx/xlsx.mjs';
+const iconv = require("iconv-lite")
+
 // import iconv from "iconv-lite";
 // import * as readline from "readline"
 
@@ -35,7 +40,6 @@ const csvToJson = (infname: string, outfname: string) => {
   console.log(`csvToJson infname=[${infname}] out=[${outfname}]`)
 
   try {
-    const iconv = require("iconv-lite")
 
     // read stream
     const parser = parse({delimiter: ',', columns: true});
@@ -118,10 +122,38 @@ const awaitTest = async () => {
   }
 
 }
+//
+// promiseTest()
+// awaitTest()
+//
+// console.debug("csvToJson ---- start.")
+// csvToJson(input_file, output_file)
+// console.debug("csvToJson ---- end.")  // 非同期なのでcsvToJsonはすぐに終わるので注意。
 
-promiseTest()
-awaitTest()
 
-console.debug("csvToJson ---- start.")
-csvToJson(input_file, output_file)
-console.debug("csvToJson ---- end.")  // 非同期なのでcsvToJsonはすぐに終わるので注意。
+const readXlsx = (fname: string) => {
+  const workbook = XLSX.readFile(fname)
+  const sheet = workbook.Sheets['Sheet1']
+  const rows = XLSX.utils.sheet_to_json(sheet)
+  console.debug("XLSX=", rows)
+  return rows
+}
+const writeXlsx = (fname: string, data: any) => {
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
+
+  /* fix headers */
+  XLSX.utils.sheet_add_aoa(worksheet, [["Name", "Birthday"]], {origin: "A1"});
+  //
+  // /* calculate column width */
+  // const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
+  // worksheet["!cols"] = [ { wch: max_width } ];
+
+  /* create an XLSX file and try to save to Presidents.xlsx */
+  XLSX.writeFile(workbook, fname);
+}
+const dataJson = readXlsx("./data/data.xlsx")
+
+writeXlsx("./out/data.xlsx", dataJson)
+
