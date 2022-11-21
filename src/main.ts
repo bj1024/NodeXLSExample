@@ -14,14 +14,14 @@ console.log(str)
 console.debug(`pwd=[${process.cwd()}]`);
 
 
-var iconv = require('iconv-lite');
+const iconv = require('iconv-lite');
 
 try {
 
-  var writer = fs.createWriteStream("./out/sample-sjis_to_utf8_2.txt");
-  // const parser = parse();
-  const parser = parse({ delimiter: ',', columns: true });
-  let fname = `./data/data_sjis_excelexport.csv`
+
+  const fname = `./data/data_sjis_excelexport.csv`
+
+  // read entire file.
   fs.readFile(fname, 'utf8', (err, data) => {
     if (err) {
       console.error(`file read error.[${err}]`)
@@ -29,11 +29,17 @@ try {
     }
     console.error(`file contents. read length=[${data.length}]`)
   })
-  var stream = fs.createReadStream(fname)
-    .pipe(iconv.decodeStream("Shift_JIS"))  // pipeにwriteableを指定する。
-    .pipe(parser)
+
+  // read stream
+  const parser = parse({delimiter: ',', columns: true});
+  const stream = fs.createReadStream(fname)
+      .pipe(iconv.decodeStream("Shift_JIS"))  // pipeにwriteableを指定する。
+      .pipe(parser) ///
     // .pipe(writer)
   ;
+
+  //
+  const records: any = []
   parser.on('readable', () => {
     let record;
     while ((record = parser.read()) !== null) {
@@ -42,11 +48,24 @@ try {
       // console.debug(record)
 
       for (let [key, value] of Object.entries(record)) {
-        console.debug('key:' + key + ' value:' + value , typeof value);
+        console.debug('key:' + key + ' value:' + value, typeof value);
       }
-      // records.push(record);
+      records.push(record);
     }
   });
+  parser.on('close', () => {
+
+    console.debug('on close', records);
+
+    const jsonstr = JSON.stringify(records, null, 2)
+    console.debug('jsonstr = ', jsonstr);
+
+    // 書き込み
+    fs.writeFile("./out/data.json", jsonstr, (err) => {
+      if (err) throw err;
+      console.log('succeed.');
+    });
+  })
 
   //
   // var reader = readline.createInterface({input: stream});
