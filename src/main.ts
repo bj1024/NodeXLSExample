@@ -15,15 +15,20 @@ console.debug(`heredoc=[${str}]`)
 console.debug(`pwd=[${process.cwd()}]`);
 
 
-const readFileAll = (infname: string) => {
+const readFileAll = async (infname: string): Promise<string> => {
   // read entire file.(test)
-  fs.readFile(infname, 'utf8', (err, data) => {
-    if (err) {
-      console.error(`file read error.[${err}]`)
-      return
-    }
-    console.error(`readFileAll.read length=[${data.length}]`)
-  })
+  return new Promise((resolve, reject) => {
+    fs.readFile(infname, 'utf8', (err, data) => {
+      if (err) {
+        // console.error(`file read error.[${err}]`)
+        reject(err)
+        return
+      }
+      console.error(`readFileAll.read length=[${data.length}]`)
+      resolve(data)
+    })
+  });
+
 }
 
 const csvToJson = (infname: string, outfname: string) => {
@@ -74,7 +79,48 @@ const csvToJson = (infname: string, outfname: string) => {
 
 const input_file = `./data/data_sjis_excelexport.csv`
 const output_file = `./out/data_excelexport.json`
-readFileAll(input_file)
+// readFileAll(input_file).then(value => console.log(`readFileAll value=[${value}]`))
+
+
+const promiseTest = () => {
+  console.debug("readFileAll single ---- start.")
+
+  readFileAll(input_file)
+    .then(value => console.log(`readFileAll then value length=[${value.length}]`))
+    .catch(reason => console.error(`readFileAll catch=${reason}`))
+
+  console.debug("readFileAll single (notexistfile) ---- start.")
+  readFileAll("notexistfile")
+    .then(value => console.log(`readFileAll then value length=[${value.length}]`))
+    .catch(reason => console.error(`readFileAll catch=${reason}`))
+
+
+  console.debug("readFileAll chain ---- start.")
+  readFileAll(input_file)
+    .then(value => {
+      console.log(`readFileAll 01 then value length=[${value.length}]`)
+      return readFileAll("notexistfile2")
+    })
+    .then(value => {
+      console.log(`readFileAll 02 then value length=[${value.length}]`)
+    })
+    .catch(reason => console.error(`catch=${reason}`))
+}
+
+
+const awaitTest = async () => {
+  console.debug("readFileAll single ---- start.")
+  try {
+    let value = await readFileAll(input_file)
+    console.log(`readFileAll await value length=[${value.length}]`)
+  } catch (e) {
+    console.error(`readFileAll await catch=${e}`)
+  }
+
+}
+
+promiseTest()
+awaitTest()
 
 console.debug("csvToJson ---- start.")
 csvToJson(input_file, output_file)
