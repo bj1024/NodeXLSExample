@@ -60,10 +60,11 @@ npm install iconv-lite
 
 ```
 
-# xlsx
+# xlsx(SheetJS)
 
 ```
 npm install --save xlsx
 npm install --save-dev @types/xlsx
-
 ```
+
+[SheetJS \- Home](https://sheetjs.com/)
